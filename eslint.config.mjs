@@ -10,8 +10,7 @@ export default tseslint.config(
     tseslint.configs.stylistic,
     {
         rules: {
-            'no-console': 'warn', // Allow console statements
-            'no-unused-vars': 'warn', // Warn about unused variables
+           
         },
     }
 );

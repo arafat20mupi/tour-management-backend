@@ -1,8 +1,8 @@
-/* eslint-disable no-console */
 import mongoose from "mongoose";
 import app from "./app";
 import { Server } from "http";
 import dotenv from "dotenv";
+import seedSuparAdmin from "./app/utilis/seedSuparAdmin";
 dotenv.config();
 
 const port = process.env.PORT || 3000;
@@ -23,7 +23,11 @@ async function main() {
         console.error("Error during initialization:", error);
     }
 }
-main();
+
+(async () => {
+    await main();
+    await seedSuparAdmin()
+})()
 
 process.on("unhandledRejection", (error) => {
     console.error("Unhandled Rejection:", error);
