@@ -4,8 +4,10 @@ import httpStatus from "http-status-codes";
 import { verifiedToken } from "../utilis/jwt";
 import AppError from "../errorHelpers/AppHelpers";
 import { envVars } from "../config/env";
+import User from "../modules/user/user.schema";
+import { IsActive } from "../modules/user/user.interface";
 
-export const checkAuth = (...authRoles: string[]) => (req: Request, res: Response, next: NextFunction) => {
+export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     try {
         const accessToken = req.headers.authorization
 
@@ -14,6 +16,18 @@ export const checkAuth = (...authRoles: string[]) => (req: Request, res: Respons
             throw new AppError(httpStatus.BAD_REQUEST, "No Token Recieved")
         }
         const verifyToken = verifiedToken(accessToken, envVars.JWT_ACCESS_SECRET) as JwtPayload
+
+        const isUserExist = await User.findOne({ email: verifyToken.email })
+
+        if (!isUserExist) {
+            throw new AppError(httpStatus.BAD_REQUEST, "User does not exist")
+        }
+        if (isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE) {
+            throw new AppError(httpStatus.BAD_REQUEST, `User is ${isUserExist.isActive}`)
+        }
+        if (isUserExist.isDeleted) {
+            throw new AppError(httpStatus.BAD_REQUEST, "User is deleted")
+        }
 
         if (!authRoles.includes(verifyToken.role)) {
             console.log(authRoles.includes(verifyToken.role));
