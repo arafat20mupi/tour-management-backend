@@ -47,7 +47,7 @@ const userSchema = new Schema({
         default: false
     },
     auth: {
-        type: authProviderSchema,
+        type: [authProviderSchema]
     }
     // booking: { 
     //     type: [Schema.Types.ObjectId], 

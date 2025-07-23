@@ -1,43 +1,21 @@
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
 import User from "./user.schema";
-import AppError from "../../errorHelpers/AppHelpers";
-import { IAuthProvider } from "./user.interface";
-import bcryptjs from "bcryptjs"
-import { envVars } from "../../config/env";
 import { UserServices } from "./user.service";
+import { JwtPayload } from "jsonwebtoken";
+import { catchAsync } from "../../utilis/catchAsync";
+import { sendResponse } from "../../utilis/sendResponse";
 
-const createUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const { email, password, ...rest } = req.body;
-        const isUserExist = await User.findOne({ email })
+const createUser = catchAsync(async (req: Request, res: Response) => {
+    const user = await UserServices.createUser(req.body);
 
-        if (isUserExist) {
-            throw new AppError(httpStatus.BAD_REQUEST, "User Already Exist")
-        }
-
-        const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
-
-        const authProvider: IAuthProvider = {
-            provider: "credentials", providerId: email as string
-        }
-
-        const user = await User.create(
-            {
-                email,
-                password: hashedPassword,
-                auths: [authProvider],
-                ...rest
-            }
-        );
-        res.status(httpStatus.CREATED).json({
-            message: "User created successfully",
-            data: user
-        });
-    } catch (error) {
-        next(error)
-    }
-};
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "User Created Successfully",
+        data: user,
+    })
+})
 
 const getUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -52,7 +30,7 @@ const updateUser = async (req: Request, res: Response, next: NextFunction) => {
     try {
         const userId = req.params.id
 
-        const verifyToken = req.user
+        const verifyToken = req.user as JwtPayload
         const payload = req.body
 
         const user = UserServices.updateUser(userId, payload, verifyToken)

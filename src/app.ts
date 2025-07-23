@@ -1,6 +1,4 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import express, { Application, NextFunction, Request, Response } from 'express'
+import express, { Application,Request, Response } from 'express'
 import cors from 'cors'
 import router from './app/router';
 import cookieParser from 'cookie-parser';

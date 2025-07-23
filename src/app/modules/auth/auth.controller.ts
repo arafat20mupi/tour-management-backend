@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
@@ -9,23 +10,42 @@ import { createUserToken } from "../../utilis/userToken";
 import { envVars } from "../../config/env";
 import { sendResponse } from "../../utilis/sendResponse";
 import { JwtPayload } from "jsonwebtoken";
+import passport from "passport";
 
-const creadentialLogin = async (req: Request, res: Response, next: NextFunction) => {
-    try {
 
-        const logInfo = await AuthServices.creadentialLogin(req.body)
+const creadentialLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
-        setAuthCookie(res, logInfo)
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
 
-        res.status(httpStatus.OK).json({
-            message: "User Login Succesfully",
-            data: logInfo,
-            success: true
-        });
-    } catch (error) {
-        next(error)
-    }
-};
+        if (err) {
+            return next(new AppError(401, err))
+        }
+
+        if (!user) {
+            return next(new AppError(401, info.message))
+        }
+
+        const userTokens = await createUserToken(user)
+
+        const { password: pass, ...rest } = user.toObject()
+
+
+        setAuthCookie(res, userTokens)
+
+        sendResponse(res, {
+            success: true,
+            statusCode: httpStatus.OK,
+            message: "User Logged In Successfully",
+            data: {
+                accessToken: userTokens.accessToken,
+                refreshToken: userTokens.refreshToken,
+                user: rest
+
+            },
+        })
+    })(req, res, next)
+
+})
 
 const getNewAccessToken = async (req: Request, res: Response, next: NextFunction) => {
     try {

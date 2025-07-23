@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 /* eslint-disable @typescript-eslint/no-unused-vars */
+
 import AppError from "../../errorHelpers/AppHelpers"
 import { IUser } from "../user/user.interface"
 import User from "../user/user.schema"
@@ -9,31 +10,7 @@ import { createNewAccessTokenWithRefreshToken, createUserToken } from "../../uti
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 
-const creadentialLogin = async (payload: Partial<IUser>) => {
-    const { email, password } = payload
-    const isUserExist = await User.findOne({ email })
 
-    if (!isUserExist) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Email does not Exist")
-    }
-
-    const isPasswordMatched = await bcryptjs.compare(password as string, isUserExist.password as string)
-
-    if (!isPasswordMatched) {
-        throw new AppError(httpStatus.BAD_REQUEST, "Incurrect password")
-    }
-
-
-    const userToken = createUserToken(isUserExist as object)
-
-
-    const { password: pass, ...rest } = isUserExist.toObject()
-    return {
-        accessToken: userToken.accessToken,
-        refreshToken: userToken.refreshToken,
-        user: rest
-    }
-}
 
 const getNewAccessToken = async (refreshToken: string) => {
     const newAccessToken = await createNewAccessTokenWithRefreshToken(refreshToken)
@@ -62,7 +39,6 @@ const resetPassword = async (oldPassword: string, newPassword: string, decodedTo
 
 
 export const AuthServices = {
-    creadentialLogin,
     getNewAccessToken,
     resetPassword
 }
