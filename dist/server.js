@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const app_1 = __importDefault(require("./app"));
 const dotenv_1 = __importDefault(require("dotenv"));
+const seedSuparAdmin_1 = __importDefault(require("./app/utilis/seedSuparAdmin"));
 dotenv_1.default.config();
 const port = process.env.PORT || 3000;
 let server;
@@ -33,4 +34,63 @@ function main() {
         }
     });
 }
-main();
+(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield main();
+    yield (0, seedSuparAdmin_1.default)();
+}))();
+process.on("unhandledRejection", (error) => {
+    console.error("Unhandled Rejection:", error);
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    }
+    process.exit(1);
+});
+process.on("uncaughtException", (error) => {
+    console.error("Uncaught Exception:", error);
+    if (server) {
+        server.close(() => {
+            process.exit(1);
+        });
+    }
+    process.exit(1);
+});
+process.on("SIGTERM", () => {
+    console.log("SIGTERM received. Shutting down gracefully...");
+    if (server) {
+        server.close(() => __awaiter(void 0, void 0, void 0, function* () {
+            console.log("Server closed.");
+            try {
+                yield mongoose_1.default.connection.close();
+                console.log("Database connection closed.");
+            }
+            catch (err) {
+                console.error("Error closing database connection:", err);
+            }
+            process.exit(0);
+        }));
+    }
+    else {
+        process.exit(0);
+    }
+});
+process.on("SIGINT", () => {
+    console.log("SIGINT received. Shutting down gracefully...");
+    if (server) {
+        server.close(() => __awaiter(void 0, void 0, void 0, function* () {
+            console.log("Server closed.");
+            try {
+                yield mongoose_1.default.connection.close();
+                console.log("Database connection closed.");
+            }
+            catch (err) {
+                console.error("Error closing database connection:", err);
+            }
+            process.exit(0);
+        }));
+    }
+    else {
+        process.exit(0);
+    }
+});
