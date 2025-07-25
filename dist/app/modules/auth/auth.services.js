@@ -16,7 +16,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthServices = void 0;
 const AppHelpers_1 = __importDefault(require("../../errorHelpers/AppHelpers"));
-const user_schema_1 = __importDefault(require("../user/user.schema"));
+const user_schema_1 = __importDefault(require("../user/user.model"));
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const userToken_1 = require("../../utilis/userToken");

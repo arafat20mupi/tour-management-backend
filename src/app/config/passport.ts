@@ -3,10 +3,10 @@ import bcryptjs from "bcryptjs";
 import passport from "passport";
 import { Strategy as GoogleStrategy, Profile, VerifyCallback } from "passport-google-oauth20";
 import { envVars } from "./env";
-import User from "../modules/user/user.schema";
-import { UserRole } from "../modules/user/user.interface";
+import { Role } from "../modules/user/user.interface";
 
 import { Strategy as LocalStrategy } from "passport-local";
+import { User } from "../modules/user/user.model";
 
 
 passport.use(
@@ -22,7 +22,7 @@ passport.use(
             }
             
 
-            const isGoogleAuthenticated = isUserExist.auth.some(providerObjects => providerObjects.provider == "google")
+            const isGoogleAuthenticated = isUserExist.auths.some(providerObjects => providerObjects.provider == "google")
 
             if (isGoogleAuthenticated && !isUserExist.password) {
                 return done(null, false, { message: "You have authenticated through Google. So if you want to login with credentials, then at first login with google and set a password for your Gmail and then you can login with email and password." })
@@ -64,7 +64,7 @@ passport.use(
                         email,
                         name: profile.displayName,
                         picture: profile.photos?.[0].value,
-                        role: UserRole.USER,
+                        role: Role.USER,
                         isVerified: true,
                         auth: [
                             {

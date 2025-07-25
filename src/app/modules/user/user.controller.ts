@@ -1,13 +1,42 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+
+
 import { NextFunction, Request, Response } from "express";
 import httpStatus from "http-status-codes";
-import User from "./user.schema";
-import { UserServices } from "./user.service";
 import { JwtPayload } from "jsonwebtoken";
+import { UserServices } from "./user.service";
 import { catchAsync } from "../../utilis/catchAsync";
 import { sendResponse } from "../../utilis/sendResponse";
 
-const createUser = catchAsync(async (req: Request, res: Response) => {
-    const user = await UserServices.createUser(req.body);
+// const createUserFunction = async (req: Response, res: Response) => {
+
+//     const user = await UserServices.createUser(req.body)
+
+//     res.status(httpStatus.CREATED).json({
+//         message: "User Created Successfully",
+//         user
+//     })
+// }
+
+// const createUser = async (req: Request, res: Response, next: NextFunction) => {
+//     try {
+//         // throw new Error("Fake eror")
+//         // throw new AppError(httpStatus.BAD_REQUEST, "fake error")
+
+//         // createUserFunction(req, res)
+
+//     } catch (err: any) {
+//         console.log(err);
+//         next(err)
+//     }
+// }
+const createUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.createUser(req.body)
+
+    // res.status(httpStatus.CREATED).json({
+    //     message: "User Created Successfully",
+    //     user
+    // })
 
     sendResponse(res, {
         success: true,
@@ -16,37 +45,64 @@ const createUser = catchAsync(async (req: Request, res: Response) => {
         data: user,
     })
 })
+const updateUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const userId = req.params.id;
+    // const token = req.headers.authorization
+    // const verifiedToken = verifyToken(token as string, envVars.JWT_ACCESS_SECRET) as JwtPayload
 
-const getUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const user = await User.find()
-        res.status(httpStatus.OK).json({ user });
-    } catch (error) {
-        next(error)
-    }
-}
+    const verifiedToken = req.user;
 
-const updateUser = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-        const userId = req.params.id
+    const payload = req.body;
+    const user = await UserServices.updateUser(userId, payload, verifiedToken as JwtPayload)
 
-        const verifyToken = req.user as JwtPayload
-        const payload = req.body
+    // res.status(httpStatus.CREATED).json({
+    //     message: "User Created Successfully",
+    //     user
+    // })
 
-        const user = UserServices.updateUser(userId, payload, verifyToken)
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "User Updated Successfully",
+        data: user,
+    })
+})
 
-        res.status(httpStatus.CREATED).json({
-            message: "User updated successfully",
-            data: user
-        });
-    } catch (error) {
-        next(error)
-    }
-}
+const getAllUsers = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query;
+    const result = await UserServices.getAllUsers(query as Record<string, string>);
 
+    // res.status(httpStatus.OK).json({
+    //     success: true,
+    //     message: "All Users Retrieved Successfully",
+    //     data: users
+    // })
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "All Users Retrieved Successfully",
+        data: result.data,
+        meta: result.meta
+    })
+})
+const getSingleUser = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const id = req.params.id;
+    const result = await UserServices.getSingleUser(id);
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.CREATED,
+        message: "User Retrieved Successfully",
+        data: result.data
+    })
+})
 
-export default {
+// function => try-catch catch => req-res function
+
+export const UserControllers = {
     createUser,
-    getUser,
+    getAllUsers,
+    getSingleUser,
     updateUser
-};
+}
+
+// route matching -> controller -> service -> model -> DB

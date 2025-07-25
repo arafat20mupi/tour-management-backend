@@ -1,11 +1,12 @@
-
-import { IAuthProvider, IUser, UserRole } from "./user.interface"
-import AppError from "../../errorHelpers/AppHelpers"
+import bcryptjs from "bcryptjs";
 import httpStatus from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
-import bcryptjs from "bcryptjs"
 import { envVars } from "../../config/env";
-import User from "./user.schema";
+import { userSearchableFields } from "./user.constant";
+import { IAuthProvider, IUser, Role } from "./user.interface";
+import { User } from "./user.model";
+import AppError from "../../errorHelpers/AppHelpers";
+import { QueryBuilder } from "../../utilis/QueryBuilder";
 
 const createUser = async (payload: Partial<IUser>) => {
     const { email, password, ...rest } = payload;
@@ -24,7 +25,7 @@ const createUser = async (payload: Partial<IUser>) => {
     const user = await User.create({
         email,
         password: hashedPassword,
-        auth: [authProvider],
+        auths: [authProvider],
         ...rest
     })
 
@@ -32,46 +33,79 @@ const createUser = async (payload: Partial<IUser>) => {
 
 }
 
-
 const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken: JwtPayload) => {
 
-    const ifUserExist = await User.findById(userId)
+    const ifUserExist = await User.findById(userId);
 
     if (!ifUserExist) {
-        throw new AppError(httpStatus.NOT_FOUND, "User Not found")
+        throw new AppError(httpStatus.NOT_FOUND, "User Not Found")
     }
+
+    /**
+     * email - can not update
+     * name, phone, password address
+     * password - re hashing
+     *  only admin superadmin - role, isDeleted...
+     * 
+     * promoting to superadmin - superadmin
+     */
 
     if (payload.role) {
-        if (decodedToken.role === UserRole.USER || decodedToken.role === UserRole.GUIDE) {
-            throw new AppError(httpStatus.BAD_REQUEST, "You are not authorize")
+        if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
         }
 
-        if (payload.role === UserRole.SUPER_ADMIN && decodedToken.role === UserRole.ADMIN) {
-            throw new AppError(httpStatus.BAD_REQUEST, "You are not authorize")
+        if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
+            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
         }
-
     }
 
-    if (payload.isActive || payload.isDeleted || payload.isVarified) {
-        if (decodedToken.role === UserRole.USER || decodedToken.role === UserRole.GUIDE) {
-            throw new AppError(httpStatus.FORBIDDEN, "You are not authorize")
+    if (payload.isActive || payload.isDeleted || payload.isVerified) {
+        if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
+            throw new AppError(httpStatus.FORBIDDEN, "You are not authorized");
         }
     }
 
     if (payload.password) {
-        payload.password = await bcryptjs.hash(payload.password as string, Number(envVars.BCRYPT_SALT_ROUND))
+        payload.password = await bcryptjs.hash(payload.password, envVars.BCRYPT_SALT_ROUND)
     }
 
-    const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
-        new: true, runValidators: true
-    })
+    const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true })
 
     return newUpdatedUser
-
 }
 
 
+const getAllUsers = async (query: Record<string, string>) => {
+
+    const queryBuilder = new QueryBuilder(User.find(), query)
+    const usersData = queryBuilder
+        .filter()
+        .search(userSearchableFields)
+        .sort()
+        .fields()
+        .paginate();
+
+    const [data, meta] = await Promise.all([
+        usersData.build(),
+        queryBuilder.getMeta()
+    ])
+
+    return {
+        data,
+        meta
+    }
+};
+const getSingleUser = async (id: string) => {
+    const user = await User.findById(id);
+    return {
+        data: user
+    }
+};
+
 export const UserServices = {
     createUser,
+    getAllUsers,
+    getSingleUser,
     updateUser
 }

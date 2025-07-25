@@ -1,20 +1,19 @@
 import { Router } from "express";
-import userController from "./user.controller";
-import { createZodSchema, updateZodSchema } from "./user.validation";
-import { validateRequest } from "../../middleware/validateRequest";
+import { UserControllers } from "./user.controller";
+import { Role } from "./user.interface";
+import { updateUserZodSchema } from "./user.validation";
 import { checkAuth } from "../../middleware/checkAuth";
-import { UserRole } from "./user.interface";
+import { validateRequest } from "../../middleware/validateRequest";
+
+const router = Router()
 
 
 
-const router = Router();
-
-
-router.post("/register", validateRequest(createZodSchema), userController.createUser);
-
-router.get("/all-users", checkAuth(UserRole.ADMIN, UserRole.SUPER_ADMIN), userController.getUser);
-
-router.patch("/:id", validateRequest(updateZodSchema), checkAuth(...Object.values(UserRole)), userController.updateUser)
-
-const userRoutes = router;
-export default userRoutes;
+router.post("/register",
+    // validateRequest(createUserZodSchema),
+    UserControllers.createUser)
+router.get("/all-users", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), UserControllers.getAllUsers)
+router.get("/:id", checkAuth(...Object.values(Role)), UserControllers.getSingleUser)
+router.patch("/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(Role)), UserControllers.updateUser)
+// /api/v1/user/:id
+export const UserRoutes = router

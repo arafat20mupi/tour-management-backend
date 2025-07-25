@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const env_1 = require("../config/env");
 const user_interface_1 = require("../modules/user/user.interface");
-const user_schema_1 = __importDefault(require("../modules/user/user.schema"));
+const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const seedSuparAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -30,7 +30,7 @@ const seedSuparAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
         };
         const payload = {
             name: "Supar Admin",
-            role: user_interface_1.UserRole.SUPER_ADMIN,
+            role: user_interface_1.Role.SUPER_ADMIN,
             email: env_1.envVars.SUPAR_ADMIN_EMAIL,
             password: hasedPassword,
             isVarified: true,

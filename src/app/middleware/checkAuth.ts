@@ -4,8 +4,8 @@ import httpStatus from "http-status-codes";
 import { verifiedToken } from "../utilis/jwt";
 import AppError from "../errorHelpers/AppHelpers";
 import { envVars } from "../config/env";
-import User from "../modules/user/user.schema";
 import { IsActive } from "../modules/user/user.interface";
+import { User } from "../modules/user/user.model";
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     try {

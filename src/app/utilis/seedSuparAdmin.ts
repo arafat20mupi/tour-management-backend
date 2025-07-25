@@ -1,7 +1,8 @@
 import { envVars } from "../config/env";
-import { IAuthProvider, IUser, UserRole } from "../modules/user/user.interface";
-import User from "../modules/user/user.schema";
+import { IAuthProvider, IUser, Role } from "../modules/user/user.interface";
+
 import bcryptjs from "bcryptjs"
+import { User } from "../modules/user/user.model";
 
 const seedSuparAdmin = async () => {
     try {
@@ -20,11 +21,11 @@ const seedSuparAdmin = async () => {
 
         const payload: IUser = {
             name: "Supar Admin",
-            role: UserRole.SUPER_ADMIN,
+            role: Role.SUPER_ADMIN,
             email: envVars.SUPAR_ADMIN_EMAIL,
             password: hasedPassword,
-            isVarified: true,
-            auth: [authProvider]
+            isVerified: true,
+            auths: [authProvider]
         }
 
         const suparAdmin = await User.create(payload)

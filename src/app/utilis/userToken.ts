@@ -2,7 +2,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../config/env";
 import AppError from "../errorHelpers/AppHelpers";
 import { IsActive, IUser } from "../modules/user/user.interface";
-import User from "../modules/user/user.schema";
+import User from "../modules/user/user.model";
 import { genarateToken, verifiedToken } from "./jwt";
 import httpStatus from "http-status-codes";
 

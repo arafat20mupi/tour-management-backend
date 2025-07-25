@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-
 import { DivisionService } from "./division.service";
 import { catchAsync } from "../../utilis/catchAsync";
 import { sendResponse } from "../../utilis/sendResponse";
@@ -15,7 +14,8 @@ const createDivision = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllDivisions = catchAsync(async (req: Request, res: Response) => {
-    const result = await DivisionService.getAllDivisions();
+    const query = req.query;
+    const result = await DivisionService.getAllDivisions(query as Record<string, string>);
     sendResponse(res, {
         statusCode: 200,
         success: true,

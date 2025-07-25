@@ -16,7 +16,7 @@ exports.createNewAccessTokenWithRefreshToken = exports.createUserToken = void 0;
 const env_1 = require("../config/env");
 const AppHelpers_1 = __importDefault(require("../errorHelpers/AppHelpers"));
 const user_interface_1 = require("../modules/user/user.interface");
-const user_schema_1 = __importDefault(require("../modules/user/user.schema"));
+const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const jwt_1 = require("./jwt");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const createUserToken = (user) => {

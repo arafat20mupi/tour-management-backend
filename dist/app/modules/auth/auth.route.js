@@ -14,19 +14,21 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthRoutes = void 0;
 const express_1 = require("express");
+const passport_1 = __importDefault(require("passport"));
+const user_interface_1 = require("../user/user.interface");
 const auth_controller_1 = require("./auth.controller");
 const checkAuth_1 = require("../../middleware/checkAuth");
-const user_interface_1 = require("../user/user.interface");
-const passport_1 = __importDefault(require("passport"));
 const router = (0, express_1.Router)();
-router.post("/login", auth_controller_1.AuthController.creadentialLogin);
-router.post("/refresh-token", auth_controller_1.AuthController.getNewAccessToken);
-router.post("/logout", auth_controller_1.AuthController.logout);
-router.post("/reset-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.UserRole)), auth_controller_1.AuthController.resetPassword);
+router.post("/login", auth_controller_1.AuthControllers.credentialsLogin);
+router.post("/refresh-token", auth_controller_1.AuthControllers.getNewAccessToken);
+router.post("/logout", auth_controller_1.AuthControllers.logout);
+router.post("/reset-password", (0, checkAuth_1.checkAuth)(...Object.values(user_interface_1.Role)), auth_controller_1.AuthControllers.resetPassword);
+//  /booking -> /login -> succesful google login -> /booking frontend
+// /login -> succesful google login -> / frontend
 router.get("/google", (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const redirect = req.query.redirect || "/";
     passport_1.default.authenticate("google", { scope: ["profile", "email"], state: redirect })(req, res, next);
 }));
 // api/v1/auth/google/callback?state=/booking
-router.get("/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), auth_controller_1.AuthController.googleCallbackController);
+router.get("/google/callback", passport_1.default.authenticate("google", { failureRedirect: "/login" }), auth_controller_1.AuthControllers.googleCallbackController);
 exports.AuthRoutes = router;

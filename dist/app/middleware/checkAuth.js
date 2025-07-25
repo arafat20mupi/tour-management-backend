@@ -17,7 +17,7 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const jwt_1 = require("../utilis/jwt");
 const AppHelpers_1 = __importDefault(require("../errorHelpers/AppHelpers"));
 const env_1 = require("../config/env");
-const user_schema_1 = __importDefault(require("../modules/user/user.schema"));
+const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const user_interface_1 = require("../modules/user/user.interface");
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
