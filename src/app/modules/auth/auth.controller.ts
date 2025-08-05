@@ -13,33 +13,18 @@ import { setAuthCookie } from "../../utilis/setCookie"
 import { sendResponse } from "../../utilis/sendResponse"
 
 const credentialsLogin = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    // const loginInfo = await AuthServices.credentialsLogin(req.body)
 
     passport.authenticate("local", async (err: any, user: any, info: any) => {
 
-
         if (err) {
-
-            // ❌❌❌❌❌
-            // throw new AppError(401, "Some error")
-            // next(err)
-            // return new AppError(401, err)
-
-
-            // ✅✅✅✅
-            // return next(err)
-            // console.log("from err");
-            return next(new AppError(401, err))
+            return next(new AppError(err.statusCode|| 401, err.massage))
         }
+
         if (!user) {
-            // console.log("from !user");
-            // return new AppError(401, info.message)
             return next(new AppError(401, info.message))
         }
 
         const userTokens = await createUserToken(user)
-
-        // delete user.toObject().password
 
         const { password: pass, ...rest } = user.toObject()
 
@@ -58,18 +43,6 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
             },
         })
     })(req, res, next)
-
-    // res.cookie("accessToken", loginInfo.accessToken, {
-    //     httpOnly: true,
-    //     secure: false
-    // })
-
-
-    // res.cookie("refreshToken", loginInfo.refreshToken, {
-    //     httpOnly: true,
-    //     secure: false,
-    // })
-
 
 })
 const getNewAccessToken = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -113,18 +86,59 @@ const logout = catchAsync(async (req: Request, res: Response, next: NextFunction
         data: null,
     })
 })
-const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const changePassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
 
     const newPassword = req.body.newPassword;
     const oldPassword = req.body.oldPassword;
     const decodedToken = req.user
 
-    await AuthServices.resetPassword(oldPassword, newPassword, decodedToken as JwtPayload);
+    await AuthServices.changePassword(oldPassword, newPassword, decodedToken as JwtPayload);
 
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
         message: "Password Changed Successfully",
+        data: null,
+    })
+})
+const resetPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const decodedToken = req.user
+
+    await AuthServices.resetPassword(req.body, decodedToken as JwtPayload);
+// http://localhost:5173/reset-password?id=68923da809d7001359f77f01&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkyM2RhODA5ZDcwMDEzNTlmNzdmMDEiLCJlbWFpbCI6ImFyYWZhdC5pbm5vdGltZXMubmV0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU0NDIxNTU3LCJleHAiOjE3NTQ0MjIxNTd9.etoikYFHaffJV1MvecyLQ7VwHZ7eCR0ELXIsDvHVa_8
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    })
+})
+const setPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const decodedToken = req.user as JwtPayload
+    const { password } = req.body;
+
+    await AuthServices.setPassword(decodedToken.userId, password);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    })
+})
+const forgotPassword = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+
+    const { email } = req.body;
+
+    await AuthServices.forgotPassword(email);
+
+    sendResponse(res, {
+        success: true,
+        statusCode: httpStatus.OK,
+        message: "Email Sent Successfully",
         data: null,
     })
 })
@@ -136,7 +150,6 @@ const googleCallbackController = catchAsync(async (req: Request, res: Response, 
         redirectTo = redirectTo.slice(1)
     }
 
-    // /booking => booking , => "/" => ""
     const user = req.user;
 
     if (!user) {
@@ -147,13 +160,6 @@ const googleCallbackController = catchAsync(async (req: Request, res: Response, 
 
     setAuthCookie(res, tokenInfo)
 
-    // sendResponse(res, {
-    //     success: true,
-    //     statusCode: httpStatus.OK,
-    //     message: "Password Changed Successfully",
-    //     data: null,
-    // })
-
     res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`)
 })
 
@@ -162,5 +168,8 @@ export const AuthControllers = {
     getNewAccessToken,
     logout,
     resetPassword,
+    setPassword,
+    forgotPassword,
+    changePassword,
     googleCallbackController
 }

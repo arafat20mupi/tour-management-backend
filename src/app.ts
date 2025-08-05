@@ -13,6 +13,7 @@ const app: Application = express()
 // Middleware 
 app.use(express.json())
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }))
 app.use(expressSession({
   secret: envVars.EXPRESS_SESSION_SECRET,
   resave: false,

@@ -41,7 +41,7 @@ const initPayment = async (bookingId: string) => {
 };
 const successPayment = async (query: Record<string, string>) => {
 
-    // Update Booking Status to Confirm 
+    // Update Booking Status to COnfirm 
     // Update Payment Status to PAID
 
     const session = await Booking.startSession();

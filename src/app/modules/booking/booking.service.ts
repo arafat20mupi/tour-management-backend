@@ -8,23 +8,22 @@ import { Tour } from "../tour/tour.model";
 import { User } from "../user/user.model";
 import { BOOKING_STATUS, IBooking } from "./booking.interface";
 import { Booking } from "./booking.model";
+import { getTransactionId } from "../../utilis/getTransactionId";
 import AppError from "../../errorHelpers/AppHelpers";
 
-const getTransactionId = () => {
-    return `tran_${Date.now()}_${Math.floor(Math.random() * 1000)}`
-}
+
 
 /**
  * Duplicate DB Collections / replica
  * 
- * Replica DB -> [ Create Booking -> Create Payment ->  Update Booking -> Error] -> Real DB
+ * Relica DB -> [ Create Booking -> Create Payment ->  Update Booking -> Error] -> Real DB
  */
 
 const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     const transactionId = getTransactionId()
 
     const session = await Booking.startSession();
-    session.startTransaction()  
+    session.startTransaction()
 
     try {
         const user = await User.findById(userId);

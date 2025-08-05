@@ -38,7 +38,7 @@ const sslPaymentInit = async (payload: ISSLCommerz) => {
             ship_state: "N/A",
             ship_postcode: 1000,
             ship_country: "N/A",
-            GatewayPageURL: "N/A",
+            GatewayPageURL: 'N/A'
         }
 
         const response = await axios({

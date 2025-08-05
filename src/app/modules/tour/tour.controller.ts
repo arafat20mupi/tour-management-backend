@@ -1,11 +1,16 @@
 
 import { Request, Response } from 'express';
+import { ITour } from './tour.interface';
 import { TourService } from './tour.service';
-import { sendResponse } from '../../utilis/sendResponse';
 import { catchAsync } from '../../utilis/catchAsync';
+import { sendResponse } from '../../utilis/sendResponse';
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-    const result = await TourService.createTour(req.body);
+    const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map(file => file.path)
+    }
+    const result = await TourService.createTour(payload);
     sendResponse(res, {
         statusCode: 201,
         success: true,
@@ -38,8 +43,11 @@ const getSingleTour = catchAsync(async (req: Request, res: Response) => {
     });
 });
 const updateTour = catchAsync(async (req: Request, res: Response) => {
-
-    const result = await TourService.updateTour(req.params.id, req.body);
+    const payload: ITour = {
+        ...req.body,
+        images: (req.files as Express.Multer.File[]).map(file => file.path)
+    }
+    const result = await TourService.updateTour(req.params.id, payload);
     sendResponse(res, {
         statusCode: 200,
         success: true,
@@ -80,7 +88,6 @@ const getAllTourTypes = catchAsync(async (req: Request, res: Response) => {
 
 const createTourType = catchAsync(async (req: Request, res: Response) => {
     const { name } = req.body;
-    console.log(name);
     const result = await TourService.createTourType(name);
     sendResponse(res, {
         statusCode: 201,

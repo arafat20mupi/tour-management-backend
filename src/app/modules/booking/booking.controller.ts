@@ -27,7 +27,6 @@ const getUserBookings = catchAsync(
         });
     }
 );
-
 const getSingleBooking = catchAsync(
     async (req: Request, res: Response) => {
         const booking = await BookingService.getBookingById();

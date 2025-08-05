@@ -1,4 +1,5 @@
 import express from "express";
+import { multerUpload } from "../../config/multer.config";
 import { Role } from "../user/user.interface";
 import { TourController } from "./tour.controller";
 import {
@@ -40,6 +41,7 @@ router.get("/", TourController.getAllTours);
 router.post(
     "/create",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    multerUpload.array("files"),
     validateRequest(createTourZodSchema),
     TourController.createTour
 );
@@ -51,6 +53,7 @@ router.get(
 router.patch(
     "/:id",
     checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+    multerUpload.array("files"),
     validateRequest(updateTourZodSchema),
     TourController.updateTour
 );
