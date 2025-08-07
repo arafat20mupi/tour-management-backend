@@ -11,10 +11,11 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TourController = void 0;
 const tour_service_1 = require("./tour.service");
-const sendResponse_1 = require("../../utilis/sendResponse");
 const catchAsync_1 = require("../../utilis/catchAsync");
+const sendResponse_1 = require("../../utilis/sendResponse");
 const createTour = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield tour_service_1.TourService.createTour(req.body);
+    const payload = Object.assign(Object.assign({}, req.body), { images: req.files.map(file => file.path) });
+    const result = yield tour_service_1.TourService.createTour(payload);
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: 201,
         success: true,
@@ -44,7 +45,8 @@ const getSingleTour = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 
     });
 }));
 const updateTour = (0, catchAsync_1.catchAsync)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const result = yield tour_service_1.TourService.updateTour(req.params.id, req.body);
+    const payload = Object.assign(Object.assign({}, req.body), { images: req.files.map(file => file.path) });
+    const result = yield tour_service_1.TourService.updateTour(req.params.id, payload);
     (0, sendResponse_1.sendResponse)(res, {
         statusCode: 200,
         success: true,

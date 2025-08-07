@@ -1,4 +1,4 @@
-import express, { Application,Request, Response } from 'express'
+import express, { Application, Request, Response } from 'express'
 import cors from 'cors'
 import router from './app/router';
 import cookieParser from 'cookie-parser';
@@ -13,6 +13,7 @@ const app: Application = express()
 // Middleware 
 app.use(express.json())
 app.use(cookieParser());
+app.set("trust proxy", 1)
 app.use(express.urlencoded({ extended: true }))
 app.use(expressSession({
   secret: envVars.EXPRESS_SESSION_SECRET,
@@ -20,8 +21,8 @@ app.use(expressSession({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false, // Set to true if using HTTPS
-    sameSite: 'lax', // Adjust based on your needs
+    secure: false,
+    sameSite: 'lax',
   }
 }))
 app.use(passport.initialize())
@@ -29,7 +30,7 @@ app.use(passport.session())
 
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5174'],
+  origin: envVars.FRONTEND_URL,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   credentials: true,
 }));

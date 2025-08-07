@@ -30,6 +30,18 @@ const loadEnvVars = () => {
         "SSL_SUCCESS_BACKEND_URL",
         "SSL_FAIL_BACKEND_URL",
         "SSL_CANCEL_BACKEND_URL",
+        "CLOUDINARY_CLOUD_NAME",
+        "CLOUDINARY_API_KEY",
+        "CLOUDINARY_API_SECRET", "SMTP_PASS",
+        "SMTP_PORT",
+        "SMTP_HOST",
+        "SMTP_USER",
+        "SMTP_FROM",
+        "REDIS_HOST",
+        "REDIS_PORT",
+        "REDIS_USERNAME",
+        "REDIS_PASSWORD",
+        "SSL_IPN_URL"
     ];
     requiredEnvVars.forEach((envVar) => {
         if (!process.env[envVar]) {
@@ -52,7 +64,6 @@ const loadEnvVars = () => {
         GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
         GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
         GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL,
-        // ssl
         SSL: {
             STORE_ID: process.env.SSL_STORE_ID,
             STORE_PASS: process.env.SSL_STORE_PASS,
@@ -64,7 +75,24 @@ const loadEnvVars = () => {
             SSL_SUCCESS_BACKEND_URL: process.env.SSL_SUCCESS_BACKEND_URL,
             SSL_FAIL_BACKEND_URL: process.env.SSL_FAIL_BACKEND_URL,
             SSL_CANCEL_BACKEND_URL: process.env.SSL_CANCEL_BACKEND_URL,
+            SSL_IPN_URL: process.env.SSL_IPN_URL
         },
+        CLOUDINARY: {
+            CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME,
+            CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY,
+            CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET,
+        },
+        EMAIL_SENDER: {
+            SMTP_USER: process.env.SMTP_USER,
+            SMTP_PASS: process.env.SMTP_PASS,
+            SMTP_PORT: process.env.SMTP_PORT,
+            SMTP_HOST: process.env.SMTP_HOST,
+            SMTP_FROM: process.env.SMTP_FROM,
+        },
+        REDIS_HOST: process.env.REDIS_HOST,
+        REDIS_PORT: process.env.REDIS_PORT,
+        REDIS_USERNAME: process.env.REDIS_USERNAME,
+        REDIS_PASSWORD: process.env.REDIS_PASSWORD,
     };
 };
 exports.envVars = loadEnvVars();

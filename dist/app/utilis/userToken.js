@@ -16,9 +16,9 @@ exports.createNewAccessTokenWithRefreshToken = exports.createUserToken = void 0;
 const env_1 = require("../config/env");
 const AppHelpers_1 = __importDefault(require("../errorHelpers/AppHelpers"));
 const user_interface_1 = require("../modules/user/user.interface");
-const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const jwt_1 = require("./jwt");
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
+const user_model_1 = require("../modules/user/user.model");
 const createUserToken = (user) => {
     const jWtPayload = {
         email: user.email,
@@ -35,7 +35,7 @@ const createUserToken = (user) => {
 exports.createUserToken = createUserToken;
 const createNewAccessTokenWithRefreshToken = (refreshToken) => __awaiter(void 0, void 0, void 0, function* () {
     const verifiedRefreshToken = (0, jwt_1.verifiedToken)(refreshToken, env_1.envVars.JWT_REFRESH_SECRET);
-    const isUserExist = yield user_schema_1.default.findOne({ email: verifiedRefreshToken.email });
+    const isUserExist = yield user_model_1.User.findOne({ email: verifiedRefreshToken.email });
     if (!isUserExist) {
         throw new AppHelpers_1.default(http_status_codes_1.default.BAD_REQUEST, "User does not exist");
     }

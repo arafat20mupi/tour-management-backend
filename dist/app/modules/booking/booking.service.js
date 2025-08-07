@@ -22,17 +22,10 @@ const tour_model_1 = require("../tour/tour.model");
 const user_model_1 = require("../user/user.model");
 const booking_interface_1 = require("./booking.interface");
 const booking_model_1 = require("./booking.model");
+const getTransactionId_1 = require("../../utilis/getTransactionId");
 const AppHelpers_1 = __importDefault(require("../../errorHelpers/AppHelpers"));
-const getTransactionId = () => {
-    return `tran_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
-};
-/**
- * Duplicate DB Collections / replica
- *
- * Replica DB -> [ Create Booking -> Create Payment ->  Update Booking -> Error] -> Real DB
- */
 const createBooking = (payload, userId) => __awaiter(void 0, void 0, void 0, function* () {
-    const transactionId = getTransactionId();
+    const transactionId = (0, getTransactionId_1.getTransactionId)();
     const session = yield booking_model_1.Booking.startSession();
     session.startTransaction();
     try {
@@ -75,7 +68,7 @@ const createBooking = (payload, userId) => __awaiter(void 0, void 0, void 0, fun
         yield session.commitTransaction(); //transaction
         session.endSession();
         return {
-            // paymentUrl: sslPayment.GatewayPageURL,
+            paymentUrl: sslPayment.GatewayPageURL,
             booking: updatedBooking
         };
     }
@@ -86,8 +79,6 @@ const createBooking = (payload, userId) => __awaiter(void 0, void 0, void 0, fun
         throw error;
     }
 });
-// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Complete -> Backend(localhost:5000/api/v1/payment/success) -> Update Payment(PAID) & Booking(CONFIRM) -> redirect to frontend -> Frontend(localhost:5173/payment/success)
-// Frontend(localhost:5173) - User - Tour - Booking (Pending) - Payment(Unpaid) -> SSLCommerz Page -> Payment Fail / Cancel -> Backend(localhost:5000) -> Update Payment(FAIL / CANCEL) & Booking(FAIL / CANCEL) -> redirect to frontend -> Frontend(localhost:5173/payment/cancel or localhost:5173/payment/fail)
 const getUserBookings = () => __awaiter(void 0, void 0, void 0, function* () {
     return {};
 });

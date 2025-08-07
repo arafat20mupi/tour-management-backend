@@ -14,11 +14,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const env_1 = require("../config/env");
 const user_interface_1 = require("../modules/user/user.interface");
-const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const user_model_1 = require("../modules/user/user.model");
 const seedSuparAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const isSuparAdmin = yield user_schema_1.default.findOne({ email: env_1.envVars.SUPAR_ADMIN_EMAIL });
+        const isSuparAdmin = yield user_model_1.User.findOne({ email: env_1.envVars.SUPAR_ADMIN_EMAIL });
         if (isSuparAdmin) {
             console.log("separ admin already exits");
             return;
@@ -33,10 +33,10 @@ const seedSuparAdmin = () => __awaiter(void 0, void 0, void 0, function* () {
             role: user_interface_1.Role.SUPER_ADMIN,
             email: env_1.envVars.SUPAR_ADMIN_EMAIL,
             password: hasedPassword,
-            isVarified: true,
-            auth: [authProvider]
+            isVerified: true,
+            auths: [authProvider]
         };
-        const suparAdmin = yield user_schema_1.default.create(payload);
+        const suparAdmin = yield user_model_1.User.create(payload);
         console.log(suparAdmin, "supar admin");
     }
     catch (error) {

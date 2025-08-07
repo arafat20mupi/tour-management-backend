@@ -35,7 +35,8 @@ exports.updateTourZodSchema = zod_1.z.object({
     maxGuest: zod_1.z.number().optional(),
     minAge: zod_1.z.number().optional(),
     departureLocation: zod_1.z.string().optional(),
-    arrivalLocation: zod_1.z.string().optional()
+    arrivalLocation: zod_1.z.string().optional(),
+    deleteImages: zod_1.z.array(zod_1.z.string()).optional()
 });
 exports.createTourTypeZodSchema = zod_1.z.object({
     name: zod_1.z.string(),

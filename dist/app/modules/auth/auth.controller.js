@@ -34,25 +34,14 @@ const userToken_1 = require("../../utilis/userToken");
 const setCookie_1 = require("../../utilis/setCookie");
 const sendResponse_1 = require("../../utilis/sendResponse");
 const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    // const loginInfo = await AuthServices.credentialsLogin(req.body)
     passport_1.default.authenticate("local", (err, user, info) => __awaiter(void 0, void 0, void 0, function* () {
         if (err) {
-            // ❌❌❌❌❌
-            // throw new AppError(401, "Some error")
-            // next(err)
-            // return new AppError(401, err)
-            // ✅✅✅✅
-            // return next(err)
-            // console.log("from err");
-            return next(new AppHelpers_1.default(401, err));
+            return next(new AppHelpers_1.default(err.statusCode || 401, err.massage));
         }
         if (!user) {
-            // console.log("from !user");
-            // return new AppError(401, info.message)
             return next(new AppHelpers_1.default(401, info.message));
         }
         const userTokens = yield (0, userToken_1.createUserToken)(user);
-        // delete user.toObject().password
         const _a = user.toObject(), { password: pass } = _a, rest = __rest(_a, ["password"]);
         (0, setCookie_1.setAuthCookie)(res, userTokens);
         (0, sendResponse_1.sendResponse)(res, {
@@ -66,14 +55,6 @@ const credentialsLogin = (0, catchAsync_1.catchAsync)((req, res, next) => __awai
             },
         });
     }))(req, res, next);
-    // res.cookie("accessToken", loginInfo.accessToken, {
-    //     httpOnly: true,
-    //     secure: false
-    // })
-    // res.cookie("refreshToken", loginInfo.refreshToken, {
-    //     httpOnly: true,
-    //     secure: false,
-    // })
 }));
 const getNewAccessToken = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const refreshToken = req.cookies.refreshToken;
@@ -111,15 +92,47 @@ const logout = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0
         data: null,
     });
 }));
-const resetPassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const changePassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const newPassword = req.body.newPassword;
     const oldPassword = req.body.oldPassword;
     const decodedToken = req.user;
-    yield auth_service_1.AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
+    yield auth_service_1.AuthServices.changePassword(oldPassword, newPassword, decodedToken);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: http_status_codes_1.default.OK,
         message: "Password Changed Successfully",
+        data: null,
+    });
+}));
+const resetPassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    yield auth_service_1.AuthServices.resetPassword(req.body, decodedToken);
+    // http://localhost:5173/reset-password?id=68923da809d7001359f77f01&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkyM2RhODA5ZDcwMDEzNTlmNzdmMDEiLCJlbWFpbCI6ImFyYWZhdC5pbm5vdGltZXMubmV0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU0NDIxNTU3LCJleHAiOjE3NTQ0MjIxNTd9.etoikYFHaffJV1MvecyLQ7VwHZ7eCR0ELXIsDvHVa_8
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    });
+}));
+const setPassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const { password } = req.body;
+    yield auth_service_1.AuthServices.setPassword(decodedToken.userId, password);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Password Changed Successfully",
+        data: null,
+    });
+}));
+const forgotPassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email } = req.body;
+    yield auth_service_1.AuthServices.forgotPassword(email);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: http_status_codes_1.default.OK,
+        message: "Email Sent Successfully",
         data: null,
     });
 }));
@@ -128,19 +141,12 @@ const googleCallbackController = (0, catchAsync_1.catchAsync)((req, res, next) =
     if (redirectTo.startsWith("/")) {
         redirectTo = redirectTo.slice(1);
     }
-    // /booking => booking , => "/" => ""
     const user = req.user;
     if (!user) {
         throw new AppHelpers_1.default(http_status_codes_1.default.NOT_FOUND, "User Not Found");
     }
     const tokenInfo = (0, userToken_1.createUserToken)(user);
     (0, setCookie_1.setAuthCookie)(res, tokenInfo);
-    // sendResponse(res, {
-    //     success: true,
-    //     statusCode: httpStatus.OK,
-    //     message: "Password Changed Successfully",
-    //     data: null,
-    // })
     res.redirect(`${env_1.envVars.FRONTEND_URL}/${redirectTo}`);
 }));
 exports.AuthControllers = {
@@ -148,5 +154,8 @@ exports.AuthControllers = {
     getNewAccessToken,
     logout,
     resetPassword,
+    setPassword,
+    forgotPassword,
+    changePassword,
     googleCallbackController
 };

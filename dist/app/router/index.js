@@ -1,18 +1,19 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const user_route_1 = __importDefault(require("../modules/user/user.route"));
 const auth_route_1 = require("../modules/auth/auth.route");
 const division_route_1 = require("../modules/division/division.route");
 const tour_route_1 = require("../modules/tour/tour.route");
+const user_route_1 = require("../modules/user/user.route");
+const booking_route_1 = require("../modules/booking/booking.route");
+const payment_route_1 = require("../modules/payment/payment.route");
+const otp_route_1 = require("../modules/otp/otp.route");
+const stats_route_1 = require("../modules/stats/stats.route");
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
         path: "/user",
-        route: user_route_1.default
+        route: user_route_1.UserRoutes
     },
     {
         path: "/auth",
@@ -25,6 +26,22 @@ const moduleRoutes = [
     {
         path: "/tour",
         route: tour_route_1.TourRoutes
+    },
+    {
+        path: "/booking",
+        route: booking_route_1.BookingRoutes
+    },
+    {
+        path: "/payment",
+        route: payment_route_1.PaymentRoutes
+    },
+    {
+        path: "/otp",
+        route: otp_route_1.OtpRoutes
+    },
+    {
+        path: "/stats",
+        route: stats_route_1.StatsRoutes
     }
 ];
 moduleRoutes.forEach((route) => {

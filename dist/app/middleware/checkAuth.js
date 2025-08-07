@@ -17,8 +17,8 @@ const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const jwt_1 = require("../utilis/jwt");
 const AppHelpers_1 = __importDefault(require("../errorHelpers/AppHelpers"));
 const env_1 = require("../config/env");
-const user_schema_1 = __importDefault(require("../modules/user/user.model"));
 const user_interface_1 = require("../modules/user/user.interface");
+const user_model_1 = require("../modules/user/user.model");
 const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const accessToken = req.headers.authorization;
@@ -26,7 +26,7 @@ const checkAuth = (...authRoles) => (req, res, next) => __awaiter(void 0, void 0
             throw new AppHelpers_1.default(http_status_codes_1.default.BAD_REQUEST, "No Token Recieved");
         }
         const verifyToken = (0, jwt_1.verifiedToken)(accessToken, env_1.envVars.JWT_ACCESS_SECRET);
-        const isUserExist = yield user_schema_1.default.findOne({ email: verifyToken.email });
+        const isUserExist = yield user_model_1.User.findOne({ email: verifyToken.email });
         if (!isUserExist) {
             throw new AppHelpers_1.default(http_status_codes_1.default.BAD_REQUEST, "User does not exist");
         }

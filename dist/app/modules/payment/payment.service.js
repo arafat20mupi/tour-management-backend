@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PaymentService = void 0;
+exports.PaymentService = exports.getInvoiceDownloadUrl = void 0;
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const http_status_codes_1 = __importDefault(require("http-status-codes"));
 const booking_interface_1 = require("../booking/booking.interface");
@@ -21,6 +21,9 @@ const sslCommerz_service_1 = require("../sslCommerz/sslCommerz.service");
 const payment_interface_1 = require("./payment.interface");
 const payment_model_1 = require("./payment.model");
 const AppHelpers_1 = __importDefault(require("../../errorHelpers/AppHelpers"));
+const invoice_1 = require("../../utilis/invoice");
+const cloudinary_config_1 = require("../../config/cloudinary.config");
+const sendEmail_1 = require("../../utilis/sendEmail");
 const initPayment = (bookingId) => __awaiter(void 0, void 0, void 0, function* () {
     const payment = yield payment_model_1.Payment.findOne({ booking: bookingId });
     if (!payment) {
@@ -45,16 +48,50 @@ const initPayment = (bookingId) => __awaiter(void 0, void 0, void 0, function* (
     };
 });
 const successPayment = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    // Update Booking Status to COnfirm 
-    // Update Payment Status to PAID
     const session = yield booking_model_1.Booking.startSession();
     session.startTransaction();
     try {
         const updatedPayment = yield payment_model_1.Payment.findOneAndUpdate({ transactionId: query.transactionId }, {
             status: payment_interface_1.PAYMENT_STATUS.PAID,
         }, { new: true, runValidators: true, session: session });
-        yield booking_model_1.Booking
-            .findByIdAndUpdate(updatedPayment === null || updatedPayment === void 0 ? void 0 : updatedPayment.booking, { status: booking_interface_1.BOOKING_STATUS.COMPLETE }, { runValidators: true, session });
+        if (!updatedPayment) {
+            throw new AppHelpers_1.default(401, "Payment not found");
+        }
+        const updatedBooking = yield booking_model_1.Booking
+            .findByIdAndUpdate(updatedPayment === null || updatedPayment === void 0 ? void 0 : updatedPayment.booking, { status: booking_interface_1.BOOKING_STATUS.COMPLETE }, { new: true, runValidators: true, session })
+            .populate("tour", "title")
+            .populate("user", "name email");
+        if (!updatedBooking) {
+            throw new AppHelpers_1.default(401, "Booking not found");
+        }
+        const invoiceData = {
+            bookingDate: updatedBooking.createdAt,
+            guestCount: updatedBooking.guestCount,
+            totalAmount: updatedPayment.amount,
+            tourTitle: updatedBooking.tour.title,
+            transactionId: updatedPayment.transactionId,
+            userName: updatedBooking.user.name
+        };
+        const pdfBuffer = yield (0, invoice_1.generatePdf)(invoiceData);
+        const cloudinaryResult = yield (0, cloudinary_config_1.uploadBufferToCloudinary)(pdfBuffer, "invoice");
+        if (!cloudinaryResult) {
+            throw new AppHelpers_1.default(401, "Error uploading pdf");
+        }
+        const emailData = Object.assign(Object.assign({}, invoiceData), { invoiceUrl: cloudinaryResult.secure_url });
+        yield payment_model_1.Payment.findByIdAndUpdate(updatedPayment._id, { invoiceUrl: cloudinaryResult.secure_url }, { runValidators: true, session });
+        yield (0, sendEmail_1.sendEmail)({
+            to: updatedBooking.user.email,
+            subject: "Your Booking Invoice",
+            templateName: "invoice",
+            templateData: emailData,
+            attachments: [
+                {
+                    filename: "invoice.pdf",
+                    content: pdfBuffer,
+                    contentType: "application/pdf"
+                }
+            ]
+        });
         yield session.commitTransaction(); //transaction
         session.endSession();
         return { success: true, message: "Payment Completed Successfully" };
@@ -67,8 +104,6 @@ const successPayment = (query) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 const failPayment = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    // Update Booking Status to FAIL
-    // Update Payment Status to FAIL
     const session = yield booking_model_1.Booking.startSession();
     session.startTransaction();
     try {
@@ -89,8 +124,6 @@ const failPayment = (query) => __awaiter(void 0, void 0, void 0, function* () {
     }
 });
 const cancelPayment = (query) => __awaiter(void 0, void 0, void 0, function* () {
-    // Update Booking Status to CANCEL
-    // Update Payment Status to CANCEL
     const session = yield booking_model_1.Booking.startSession();
     session.startTransaction();
     try {
@@ -110,9 +143,22 @@ const cancelPayment = (query) => __awaiter(void 0, void 0, void 0, function* () 
         throw error;
     }
 });
+const getInvoiceDownloadUrl = (paymentId) => __awaiter(void 0, void 0, void 0, function* () {
+    const payment = yield payment_model_1.Payment.findById(paymentId)
+        .select("invoiceUrl");
+    if (!payment) {
+        throw new AppHelpers_1.default(401, "Payment not found");
+    }
+    if (!payment.invoiceUrl) {
+        throw new AppHelpers_1.default(401, "No invoice found");
+    }
+    return payment.invoiceUrl;
+});
+exports.getInvoiceDownloadUrl = getInvoiceDownloadUrl;
 exports.PaymentService = {
     initPayment,
     successPayment,
     failPayment,
+    getInvoiceDownloadUrl: exports.getInvoiceDownloadUrl,
     cancelPayment,
 };

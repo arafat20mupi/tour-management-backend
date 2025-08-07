@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Invoice</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f4f6f8;
+            margin: 0;
+            padding: 30px;
+            color: #333;
+        }
+
+        .invoice-container {
+            max-width: 800px;
+            margin: auto;
+            background: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .header .company-info h2 {
+            margin: 0;
+            color: #007bff;
+            font-size: 28px;
+        }
+
+        .header .company-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .header .invoice-badge {
+            background: #007bff;
+            color: #fff;
+            padding: 12px 30px;
+            border-radius: 4px;
+            font-size: 20px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        /* Bill To Section */
+        .bill-to {
+            margin-bottom: 30px;
+        }
+
+        .bill-to p {
+            margin: 6px 0;
+            font-size: 15px;
+        }
+
+        .bill-to .label {
+            font-weight: 600;
+            color: #222;
+        }
+
+        /* Table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        table thead {
+            background: #007bff;
+            color: #fff;
+        }
+
+        table th,
+        table td {
+            padding: 14px;
+            text-align: left;
+            font-size: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        table tfoot td {
+            font-size: 16px;
+            font-weight: bold;
+            border-top: 2px solid #007bff;
+            padding: 14px;
+            text-align: right;
+        }
+
+        table tfoot td span {
+            color: #007bff;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #777;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="invoice-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="company-info">
+                <h2>TravelMate Tours & Travels</h2>
+                <p>123 Main Street, Dhaka, Bangladesh</p>
+                <p>Email: support@travelmate.com | Phone: +880 1234-567890</p>
+            </div>
+        </div>
+        <div class="invoice-badge">Invoice</div>
+        <!-- Bill To -->
+        <div class="bill-to">
+            <p><span class="label">Bill To:</span>
+                <%= userName %>
+            </p>
+            <p><span class="label">Transaction ID:</span>
+                <%= transactionId %>
+            </p>
+            <p><span class="label">Booking Date:</span>
+                <%= bookingDate.toDateString() %>
+            </p>
+        </div>
+
+        <!-- Booking Details -->
+        <h3>Booking Details</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Tour Title</th>
+                    <th>Guests</th>
+                    <th>Total Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <%= tourTitle %>
+                    </td>
+                    <td>
+                        <%= guestCount %>
+                    </td>
+                    <td>$<%= totalAmount.toFixed(2) %>
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2">Grand Total:</td>
+                    <td><span>$<%= totalAmount.toFixed(2) %></span></td>
+                </tr>
+            </tfoot>
+        </table>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>Thank you for booking with TravelMate!</p>
+            <p>&copy; <%= new Date().getFullYear() %> TravelMate Tours & Travels. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>
