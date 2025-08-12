@@ -17,7 +17,7 @@ const credentialsLogin = catchAsync(async (req: Request, res: Response, next: Ne
     passport.authenticate("local", async (err: any, user: any, info: any) => {
 
         if (err) {
-            return next(new AppError(err.statusCode|| 401, err.massage))
+            return next(new AppError(err.statusCode|| 401, err))
         }
 
         if (!user) {
@@ -106,7 +106,6 @@ const resetPassword = catchAsync(async (req: Request, res: Response, next: NextF
     const decodedToken = req.user
 
     await AuthServices.resetPassword(req.body, decodedToken as JwtPayload);
-// http://localhost:5173/reset-password?id=68923da809d7001359f77f01&token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2ODkyM2RhODA5ZDcwMDEzNTlmNzdmMDEiLCJlbWFpbCI6ImFyYWZhdC5pbm5vdGltZXMubmV0QGdtYWlsLmNvbSIsInJvbGUiOiJVU0VSIiwiaWF0IjoxNzU0NDIxNTU3LCJleHAiOjE3NTQ0MjIxNTd9.etoikYFHaffJV1MvecyLQ7VwHZ7eCR0ELXIsDvHVa_8
     sendResponse(res, {
         success: true,
         statusCode: httpStatus.OK,
