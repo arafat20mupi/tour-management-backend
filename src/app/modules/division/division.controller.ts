@@ -42,6 +42,7 @@ const getSingleDivision = catchAsync(async (req: Request, res: Response) => {
 
 const updateDivision = catchAsync(async (req: Request, res: Response) => {
     const id = req.params.id;
+    console.log(req.params);
     const payload: IDivision = {
         ...req.body,
         thumbnail: req.file?.path
